@@ -16,7 +16,7 @@ export default defineConfig({
             usePolling: true,  // Usa polling para vigilar los cambios en archivos dentro del contenedor
         },
         cors: {
-            origin: '*',
+            origin: 'http://localhost:8080',
             credentials: true,
         },
     },

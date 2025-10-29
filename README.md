@@ -60,13 +60,16 @@ The Vite development server is configured to run in a separate container with:
 ### vite.config.js
 - Configured with `host: '0.0.0.0'` to accept connections from all interfaces
 - `strictPort: true` ensures Vite uses port 5173
-- `cors: { origin: '*' }` allows cross-origin requests
+- `cors: { origin: 'http://localhost:8080', credentials: true }` allows secure cross-origin requests
 - `watch.usePolling: true` for reliable file watching in Docker
 
 ### docker/nginx/default.conf
 - Proxies Vite asset requests to the Vite container
-- Adds CORS headers to avoid browser errors
+- Adds CORS headers restricted to localhost:8080 for security
 - Handles WebSocket upgrades for HMR
+- Only proxies necessary Vite paths (resources, @vite, @id, @fs)
+
+**Note**: The CORS origin is set to `http://localhost:8080` for development. If deploying to production or using a different domain, update this value in both `vite.config.js` and `docker/nginx/default.conf`.
 
 ### docker-compose.yml
 - Defines the Vite service
