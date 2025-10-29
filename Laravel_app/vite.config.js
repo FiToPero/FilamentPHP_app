@@ -6,10 +6,9 @@ export default defineConfig({
     server: {
         host: '0.0.0.0',
         port: 5173,
-        origin: 'https://lonely-spell-p4w4w7qv9943r9jj-5173.app.github.dev:5173',
         hmr: {
-            host: 'lonely-spell-p4w4w7qv9943r9jj-5173.app.github.dev',
-            protocol: 'wss',
+            host: 'localhost',
+            protocol: 'ws',
             port: 5173,
         },
         watch: {
