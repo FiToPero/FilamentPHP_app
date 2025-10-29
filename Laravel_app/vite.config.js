@@ -6,6 +6,7 @@ export default defineConfig({
     server: {
         host: '0.0.0.0',
         port: 5173,
+        strictPort: true,
         hmr: {
             host: 'localhost',
             protocol: 'ws',
@@ -13,6 +14,10 @@ export default defineConfig({
         },
         watch: {
             usePolling: true,  // Usa polling para vigilar los cambios en archivos dentro del contenedor
+        },
+        cors: {
+            origin: '*',
+            credentials: true,
         },
     },
     plugins: [

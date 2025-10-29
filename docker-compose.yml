@@ -26,6 +26,20 @@ services:
       - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
     depends_on:
       - php
+      - vite
+
+  vite:
+    build:
+      context: .
+      target: dev
+    container_name: vite_server
+    working_dir: /var/www/html/Laravel_app
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./Laravel_app:/var/www/html/Laravel_app
+    command: sh -c "npm install && npm run dev"
+    user: "1000:1000"
 
   db:
     image: postgres:16-alpine
