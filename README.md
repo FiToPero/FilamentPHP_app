@@ -113,3 +113,11 @@ docker-compose exec vite npm run build
 ```
 
 This will create optimized assets in `Laravel_app/public/build/`.
+
+## Future Enhancements
+
+For production deployments, consider:
+- Using environment variables for CORS origin configuration in both `vite.config.js` and `nginx` config
+- Setting up SSL/TLS certificates for HTTPS
+- Adjusting CORS origin to match your production domain
+- Building and serving static assets instead of running Vite dev server
