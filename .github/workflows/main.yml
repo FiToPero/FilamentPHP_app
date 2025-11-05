@@ -24,8 +24,11 @@ jobs:
         run: docker compose up -d
 
       - name: Install PHP dependencies
-        run: docker compose exec -w /var/www/html/Laravel_app php composer install --no-interaction --no-progress --prefer-dist
+        run: docker compose exec -u root -w /var/www/html/Laravel_app php composer install --no-interaction --no-progress --prefer-dist
 
+      - name: Fix ownership and permissions
+        run: docker compose exec -u root php chown -R app:app /var/www/html
+      
       - name: Generate application key
         run: docker compose exec -w /var/www/html/Laravel_app php php artisan key:generate
 
