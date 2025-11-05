@@ -24,7 +24,7 @@ jobs:
         run: docker compose up -d
 
       - name: Install PHP dependencies
-        run: docker compose exec php composer install --no-interaction --no-progress --prefer-dist
+        run: docker compose exec -w /var/www/html php composer install --no-interaction --no-progress --prefer-dist
 
       - name: Generate application key
         run: docker compose exec php php artisan key:generate
