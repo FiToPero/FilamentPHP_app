@@ -1,8 +1,8 @@
 services:
   php:
-    build:
-      context: .
-      target: dev
+    image: fitopero/filament_apache:latest
+    # build:
+    #   context: .
     container_name: php_server
     volumes:
       - .:/var/www/html
