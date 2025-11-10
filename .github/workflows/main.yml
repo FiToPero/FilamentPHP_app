@@ -58,32 +58,63 @@ jobs:
         if: always()
         run: docker compose down -v
 
-  # deploy:
-  #   runs-on: ubuntu-latest
-  #   needs: test
-  #   if: github.ref == 'refs/heads/main' && success()
+  # Job de despliegue a producción
+  deploy:
+    # Se ejecuta en una máquina virtual Ubuntu
+    runs-on: ubuntu-latest
+    
+    # Este job solo se ejecuta después de que el job 'test' se complete exitosamente
+    needs: test
+    
+    # Condiciones para ejecutar el deploy:
+    # 1. Solo cuando se hace push a la rama 'main'
+    # 2. Solo si el job anterior (test) fue exitoso
+    if: github.ref == 'refs/heads/main' && success()
 
-  #   steps:
-  #     - name: Checkout code
-  #       uses: actions/checkout@v3
+    steps:
+      # Paso 1: Descarga el código del repositorio en el runner de GitHub
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-  #     - name: Deploy via SSH
-  #       uses: appleboy/ssh-action@v1.1.0
-  #       with:
-  #         host: ${{ secrets.SSH_HOST }}
-  #         username: ${{ secrets.SSH_USER }}
-  #         key: ${{ secrets.SSH_KEY }}
-  #         script: |
-  #           cd /var/www/${{secrets.APP_NAME}}
-  #           git pull origin main
-  #           composer install --no-dev --optimize-autoloader --no-interaction --no-scripts
-  #           php artisan migrate --force
-  #           npm ci && npm run build
-  #           php artisan config:cache
-  #           php artisan route:cache
-  #           php artisan view:cache
-
-  
-
-
-  
+      # Paso 2: Conecta al servidor de producción via SSH y ejecuta comandos dentro de Docker
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.1.0
+        with:
+          # Dirección IP o dominio del servidor (almacenado en GitHub Secrets)
+          host: ${{ secrets.SSH_HOST }}
+          
+          # Usuario SSH del servidor (almacenado en GitHub Secrets)
+          username: ${{ secrets.SSH_USER }}
+          
+          # Puerto SSH personalizado (almacenado en GitHub Secrets)
+          port: ${{ secrets.SSH_PORT }}
+          
+          # Clave privada SSH para autenticación (almacenada en GitHub Secrets)
+          key: ${{ secrets.SSH_KEY }}
+          
+          # Script que se ejecuta en el servidor remoto
+          script: |
+            cd /var/www/${{secrets.APP_NAME}}
+            git pull origin main
+            docker compose build --no-cache prod
+        
+            docker compose down
+            
+            docker compose up -d prod
+            
+            sleep 10
+            
+            docker compose exec -T php composer install --no-dev --optimize-autoloader --no-interaction
+            docker compose exec -T php php artisan migrate --force
+            docker compose exec -T php php artisan config:clear
+            docker compose exec -T php php artisan cache:clear
+            docker compose exec -T php php artisan route:clear
+            docker compose exec -T php php artisan view:clear
+            docker compose exec -T php php artisan filament:optimize-clear
+            docker compose exec -T php php artisan optimize
+            docker compose exec -T php php artisan filament:optimize
+            docker compose exec -T php php artisan config:cache
+            docker compose exec -T php php artisan route:cache
+            docker compose exec -T php php artisan view:cache
+            
+            docker image prune -f
